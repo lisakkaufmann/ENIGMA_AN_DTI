@@ -1,8 +1,6 @@
 #! /usr/bin/env python 
 from __future__ import print_function
 
-import sys
-sys.path.insert(1,"/burg/edru/users/cl3996/lib/python3.8/site-packages")
 import os
 import numpy as np
 import nibabel as nib
