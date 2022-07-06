@@ -4,5 +4,5 @@ For single band data, use an adaption of the Fernet package (https://github.com/
 
 For multiband data, you can use the multi-band script: multi-band_fw.py.
 
-Both scripts use python packages and tools. You will need to have the following python packages available:
-
+Both scripts use python packages and tools. You will need to have the following packages in your python library:
+numpy, nibabel, dipy
