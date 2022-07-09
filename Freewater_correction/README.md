@@ -12,7 +12,7 @@ fslmaths $preprocessed_dwi_data_b0_volumes -Tmean $preprocessed_dwi_data_meanb0
 Extract the brain with:
 bet2 $preprocessed_dwi_data_meanb0 $preprocessed_dwi_data_meanb0_mask
 
-To run the freewater correction on your single shell data, simply use the command: 
+To run the freewater correction on your single shell data, you will need to download the file called "net" to your python library. Once you have done that, simply use the command: 
 
 python fernet.py -d $preprocessed_dwi_data -b $bval_file -r $bvec_file -m $b0_mask -o $path_to_output+prefix
 
