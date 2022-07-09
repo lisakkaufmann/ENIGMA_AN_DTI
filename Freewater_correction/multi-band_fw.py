@@ -1,8 +1,16 @@
-#! /usr/bin/env python 
+#! /usr/bin/env python
 from __future__ import print_function
 
+import os
+import numpy as np
+import nibabel as nib
+import argparse
 import sys
 
+
+DESCRIPTION = '''
+Multi-shell FW correction
+'''
 
 def buildArgsParser():
     p = argparse.ArgumentParser(description=DESCRIPTION)
@@ -37,9 +45,9 @@ def main():
      Multi-shell FW correction
     -------------------------------------------------------
 ''')
-    run_fw_ms(dwis_filename, bvals_filename, bvecs_filenameoutput_basename)
+    run_fw_ms(dwis_filename, bvals_filename, bvecs_filename, output_basename)
                 
-def run_fernet_ms(dwis_filename, bvals_filename, bvecs_filename, output_basename):
+def run_fw_ms(dwis_filename, bvals_filename, bvecs_filename, output_basename):
 
   import nibabel as nib
   import dipy
@@ -52,14 +60,15 @@ def run_fernet_ms(dwis_filename, bvals_filename, bvecs_filename, output_basename
   from dipy.data import read_cenir_multib
   from dipy.segment.mask import median_otsu
   from dipy.io import read_bvals_bvecs
-  bvals, bvecs = read_bvals_bvecs(bval, bvec)
+  bvals, bvecs = read_bvals_bvecs(bvals_filename, bvecs_filename)
   from dipy.core.gradients import gradient_table
   gtab = gradient_table(bvals, bvecs)
   from dipy.io.image import load_nifti
-  data, affine, img = load_nifti(fdwi, return_img=True)
+  data, affine, img = load_nifti(dwis_filename, return_img=True)
   maskdata,mask = median_otsu(data, vol_idx=[0, 1], median_radius=4, numpass=2,
                              autocrop=False, dilate=1)
-
+  from dipy.io.image import save_nifti
+  save_nifti("mask.nii.gz", maskdata, affine)
   fwdtimodel = fwdti.FreeWaterTensorModel(gtab)
   fwdtifit = fwdtimodel.fit(maskdata)
   FA = fwdtifit.fa
@@ -70,9 +79,14 @@ def run_fernet_ms(dwis_filename, bvals_filename, bvecs_filename, output_basename
   MD_orig = dtifit.md
 
   from dipy.io.image import save_nifti
-  name=dest+"_fw_corrected_FA.nii.gz")
-  name1= dest+"_FA.nii.gz")
-  name2= dest+"_fw_corrected.nii.gz")
+  name=dest+"_fw_corrected_FA.nii.gz"
+  name1= dest+"_FA.nii.gz"
+  name2= dest+"_fw_corrected.nii.gz"
   save_nifti(name, FA, affine)
   save_nifti(name1, FA_orig, affine)
   save_nifti(name2, fwdtifit, affine)
+
+
+if __name__ == '__main__':
+    main()
+
