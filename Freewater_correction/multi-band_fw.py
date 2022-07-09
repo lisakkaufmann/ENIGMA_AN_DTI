@@ -74,6 +74,7 @@ def run_fw_ms(dwis_filename, bvals_filename, bvecs_filename, output_basename):
   FA = fwdtifit.fa
   MD = fwdtifit.md
 
+  dtimodel = dti.TensorModel(gtab)
   dtifit = dtimodel.fit(maskdata)
   FA_orig = dtifit.fa
   MD_orig = dtifit.md
