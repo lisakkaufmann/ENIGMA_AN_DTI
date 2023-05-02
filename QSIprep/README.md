@@ -1,13 +1,28 @@
-Recommendations for QSIprep
+DWI data require preprocessing prior to estimating the diffusion tensor and completing the TBSS analysis. The pipeline ideally includes the following steps:
 
-To run QSIprep, we recommend the following command:
+•	Denoising
+•	Susceptibility distortion correction
+•	Motion correction
+•	Eddy current correction
 
-qsiprep $BIDS_directory $output_directory participant -w $working_directory -l $log_file --output-resolution $voxel_dims --separate-all-dwis  --denoise-method none --unringing-method none --participant_label $name_of_sub --dwi_only --fs-license-file $path_to_fslicensefile --skip_bids_validation 
+Notably, deringing (removal of Gibbs ringing artifact) is optional since there is little evidence this step is necessary.
 
-If an Nvidea GPU is available, you can speed up the processing using eddy_cuda. You would specify this option in an eddy_params file (see single shell and multi-shell options in eddy_files folder), adding this argument (--eddy-config $name_of_eddy_params_file) to the above line. The examples provided will implement slice to volume correction.
+Prior to preprocessing, check your data for artifacts. This resource might be helpful:
+https://sites.google.com/a/labsolver.org/dsi-studio/course/diffusion-mri-signals
 
-If a GPU is not available, the default eddy_params file will work just fine, and you do not need to modity eddy_params.
+In the event that artifacts are observed, you can remove them using the remove_badvols.sh script, which will drop the volumes from both the dwi series and the bval and bvec files.
 
-More information about QSIprep is available here: https://qsiprep.readthedocs.io/en/latest/usage.html#note-on-using-cuda
-More information about FSLeddy (used for motion, Eddy current, and susceptibility distortion correction), including slice to volume correction is available here:
-https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy
+If data are already preprocessed, they do not need re-processing. However if preprocessing is required, QSIprep can complete all of the steps in a convenient wrapper, and so we recommend this (but feel free to use a different pipeline or set of functions).
+
+QSIprep installation information is available here: https://qsiprep.readthedocs.io/en/latest/installation.html
+
+Once installed, the following command will ensure all corrections noted above are implemented:
+
+qsiprep -i $inputdir -o $outputdir -d $workdir -l qsilog.log --output-resolution 1.00 --separate-all-dwis --participant_label $subname --hmc_model eddy --fs-license-file $FS_license_location
+
+
+If there are GPUs available on your computing system, you can implement slice to volume correction using FSL eddy. In this case, the command looks a little different, and includes the eddy_config flag:
+
+qsiprep -i $inputdir -o $outputdir -d $workdir -l qsilog.log --output-resolution 1.00 --separate-all-dwis --participant_label $subname --hmc_model eddy --fs-license-file $FS_license_location eddy_config eddy_params.json
+
+An example of the eddy_params.json content is available in this repository. You will need to provide your own slice order information (in a file called slspec.txt) and specify mporder after following the guidelines provided here to identify a reasonable parameter: https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/eddy/UsersGuide#A--mporder
