@@ -4,5 +4,5 @@ The aim of the TBSS analysis is to describe white matter alterations that are pr
 
 The instructions outlined in the "Instructions" word document are intended to allow the different sites to complete the analyses and submit results for the meta-analysis, however the processing and analyses can be completed centrally if the data sharing agreements permit this.
 
-## Download this repo and follow the Instructions document to get started. 
+## Download this repository and follow the Instructions document to get started. 
 
