@@ -1,0 +1,126 @@
+#!/bin/bash
+# (1) input the directory where the subjects lie - expecting to be in BIDS format, session included
+# (2) the file with the parameters: (1) sub-<ID> (2) ses-<session> (3) badvolI0,badvolI1,etc 
+
+
+inDir=$1
+excludeFile=$2
+
+## input file should have the: subject, and BAD VOLS INDEX now (if you can) 
+while read sub ses badvolIndex; do
+    echo "-------------------------------"
+    echo ${sub}_${ses}
+    echo "-------------------------------"
+    
+
+    # set some variables 
+    curdir=${inDir}/${sub}/${ses}/dwi
+    cur_nii=${curdir}/${sub}_${ses}_dwi.nii.gz
+    cur_bval=${curdir}/${sub}_${ses}_dwi.bval
+    cur_bvec=${curdir}/${sub}_${ses}_dwi.bvec
+
+
+    cd ${curdir}
+
+    ### make the old ones
+    cp ${cur_nii} $(basename ${cur_nii} ".nii.gz")_FULL.nii.gz
+    cp ${cur_bval} $(basename ${cur_bval} ".bval")_FULL.bval
+    cp ${cur_bvec} $(basename ${cur_bvec} ".bvec")_FULL.bvec
+    ###
+
+
+    ##### 
+
+    fslsplit ${cur_nii} tmpdiff -t
+
+    # get total number of diffusion volumes (minus 1 due to indexing by 0)
+    nVOL=$(fslhd ${cur_nii}  | grep "dim4" | grep -v "pixdim4" | grep -Eo '[0-9]{1,3}' | tail -n 1)
+    useVol=$(echo "${nVOL}-1" | bc)
+    fullVolArray=($(seq 0 ${useVol}))
+
+    echo "full: "
+    echo ${fullVolArray[@]}
+    echo ""
+
+    # read in the bad volume indices and remove them from the fullVolArray
+    IFS=',' read -ra badVolIndexArray <<< ${badvolIndex}
+    for j in "${badVolIndexArray[@]}"; do
+        unset fullVolArray[${j}]
+    done
+    echo "stripped: "
+    echo ${fullVolArray[@]}
+    echo ""
+
+    
+    # prepare for the bvalues and bvecs
+    mapfile -d " " bvalArray < ${cur_bval}
+    mapfile bvecArray < ${cur_bvec}
+    bvec0=(${bvecArray[0]})
+    bvec1=(${bvecArray[1]})
+    bvec2=(${bvecArray[2]})
+    
+    # set the arrays that you will want to use
+    declare -a bvecToUse_0
+    declare -a bvecToUse_1
+    declare -a bvecToUse_2
+    declare -a bValtoUse
+    
+    declare -a useVolArray
+
+
+    # with this new fullVolArray, grab the nifti vols to use, and the bvec/bvals
+    for i in "${fullVolArray[@]}"; do
+        
+        # for grep purposes, need to append a leading 0 to any single digits
+        if [ ${#fullVolArray[${i}]} -eq '1' ]; then
+            fullVolArray[${i}]="0${fullVolArray[${i}]}"
+        fi
+
+        # add the volumes to use
+        curvol=$(ls | grep "tmpdiff" | grep "${fullVolArray[${i}]}.nii.gz")
+        useVolArray=("${useVolArray[@]}" "${curvol}")
+
+        # add the bvals and bvecs to use
+        bValtoUse=("${bValtoUse[@]}" "${bvalArray[10#$i]}")
+        bvecToUse_0=("${bvecToUse_0[@]}" "${bvec0[10#$i]}")
+        bvecToUse_1=("${bvecToUse_1[@]}" "${bvec1[10#$i]}")
+        bvecToUse_2=("${bvecToUse_2[@]}" "${bvec2[10#$i]}")
+    done
+
+    echo "full vol aagiIN: "
+    echo ${fullVolArray[@]}
+    echo ""
+    echo "use vols: "
+    echo ${useVolArray[@]}
+    
+
+    # make the final NIFTI and the bvec/bval files
+    fslmerge -t ${sub}_${ses}_dwi $(echo ${useVolArray[@]})
+
+
+    printf -v bvec0_str "%s " "${bvecToUse_0[@]}"
+    printf -v bvec1_str "%s " "${bvecToUse_1[@]}"
+    printf -v bvec2_str "%s " "${bvecToUse_2[@]}"
+
+    printf "%s" "${bValtoUse[@]}" > "${sub}_${ses}_dwi.bval"
+    printf "%s\n" "${bvec0_str}" > "${sub}_${ses}_dwi.bvec"
+    printf "%s\n" "${bvec1_str}" >> "${sub}_${ses}_dwi.bvec"
+    printf "%s" "${bvec2_str}" >> "${sub}_${ses}_dwi.bvec"
+
+
+    echo ""
+
+    # clean up: unset the arrays used and remove the tmpdiff
+    unset useVolArray
+    unset fullVolArray
+    unset bValtoUse
+    unset bvecToUse_0
+    unset bvecToUse_1
+    unset bvecToUse_2    
+
+    rm tmpdiff*
+
+
+done < ${excludeFile}
+
+cd ${inDir}
