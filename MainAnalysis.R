@@ -131,7 +131,7 @@ if("ad" %in% testvars){testvars <- testvars[!testvars=="ad"]}
 merged_ordered$dx3 <- as.factor(merged_ordered$dx3)
 
 ##start with two-group
-for(i in 1:length(models)){  
+for(i in 1:nrow(models)){  
   if(i > 1){testvars <- testvars[!(testvars=="Average" | testvars=="Weighted_avg"| testvars=="Core_weighted_avg" | testvars=="Core_weighted_avg" | testvars=="Peri")]}
   formula <- models[i,]$Formula
   info <- models[i,]$Info
@@ -188,7 +188,7 @@ for(i in 1:length(models)){
       
       row <- data.frame(test, info,n_an,n_pan,n_hc,t_hc_pan,d_hc_pan,seg_hc_pan,ci_hc_pan[1],ci_hc_pan[2],t_hc_an,d_hc_an,seg_hc_an,ci_hc_an[1],ci_hc_an[2],t_pan_an,d_pan_an,seg_pan_an,ci_pan_an[1],ci_pan_an[2],tstat.df)
       THREE_GROUP <- rbind(THREE_GROUP,row)}
-}
+  }
 }
 
 ## Predictors of brain outcomes per group
