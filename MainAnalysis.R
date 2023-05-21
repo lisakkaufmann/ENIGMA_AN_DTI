@@ -5,9 +5,9 @@ pacman::p_load(ppcor, lsmeans, multcomp, vtable, dplyr, summarytools, readxl,sen
 dir.create("/Volumes/EDRU/Individual Folders/Caitlin/ENIGMA/NYSPI/results", mode = '0777')
 source("helpers.R")
 
-##set directory to where your data is: this is within the ENIGMA folder
-enigmadir <- "/Volumes/EDRU/Individual Folders/Caitlin/ENIGMA"
-projectdir <- "/Volumes/EDRU/Individual Folders/Caitlin/ENIGMA/NYSPI"
+##tell R where your ENIGMA folders are
+enigmadir <- "ENIGMA_AN_DTI"
+projectdir <- "ENIGMA_AN_DTI/nameofyoursite"
 statsdir <- paste0(projectdir,"/stats/")
 results <- paste0(projectdir,"/results/")
 
