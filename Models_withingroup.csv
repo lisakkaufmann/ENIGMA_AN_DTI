@@ -1,0 +1,6 @@
+"","Model","Formula","Info"
+"1",1,"test ~  site","Within group"
+"2",2,"test ~ Average + site","Within group adjusted for average"
+"3",3,"test ~  Peri + site","Within group  adjusted for peripheral"
+"4",4,"test ~ Core_weighted_avg +site","Within group  adjusted for core average"
+"5",5,"test ~ Weighted_avg + site","Within group  adjusted for weighted average"
