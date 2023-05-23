@@ -211,7 +211,7 @@ for(frame in list(AN,HC, AN_acute, AN_partial)){
   i <- i+1
   name <- framename[i]
   for(test in testvars){
-    for(i in 1:length(models)){  
+    for(i in 1:nrow(models)){  
       for(pred in preds){
         frame$test <- frame[[test]]
         formula <- paste0(models[i,]$Formula,pred)
