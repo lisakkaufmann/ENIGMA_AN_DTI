@@ -3,13 +3,16 @@ install.packages("pacman")
 pacman::p_load(ppcor, lsmeans, multcomp, vtable, dplyr, summarytools, readxl,sensemakr, emmeans,oro.nifti,readxl,stats,tidyr,voxel)
 
 dir.create("/Volumes/EDRU/Individual Folders/Caitlin/ENIGMA/NYSPI/results", mode = '0777')
-source("helpers.R")
+
 
 ##tell R where your ENIGMA folders are
 enigmadir <- "ENIGMA_AN_DTI"
 projectdir <- "ENIGMA_AN_DTI/nameofyoursite"
 statsdir <- paste0(projectdir,"/stats/")
 results <- paste0(projectdir,"/results/")
+
+setwd(enigmadir)
+source("helpers.R")
 
 files <- c("FA_combined_roi_avg.csv", "AD_combined_roi_avg.csv", "MD_combined_roi_avg.csv", "RD_combined_roi_avg.csv")
 loop=0
@@ -70,7 +73,7 @@ for(file in files){
   merged_ordered = merge(Covs, Dat, by.x="SubjID", by.y="Cases");
 
   
-  brain <- merged_ordered %>% select(ends_with(filetype)) %>% colnames()
+  brain <- merged_ordered %>% dplyr::select(ends_with(filetype)) %>% colnames()
 if("ad" %in% brain){brain <- brain[!brain=="ad"]}
   setwd(results)
   cont <- c("age","bmi","bmi_sds","ao","durill","deprsymp","iq")
@@ -125,7 +128,7 @@ write.csv(brain_sum,paste0(tbssfile,"_brain_summary_2group.csv"))
 setwd(enigmadir)
 models <- read_xlsx("Models_betweengroup.xlsx")
 
-testvars <- merged_ordered %>% select(ends_with(filetype)) %>% colnames()
+testvars <- merged_ordered %>% dplyr::select(ends_with(filetype)) %>% colnames()
 if("ad" %in% testvars){testvars <- testvars[!testvars=="ad"]}
 
 merged_ordered$dx3 <- as.factor(merged_ordered$dx3)
@@ -188,7 +191,7 @@ for(i in 1:nrow(models)){
       
       row <- data.frame(test, info,n_an,n_pan,n_hc,t_hc_pan,d_hc_pan,seg_hc_pan,ci_hc_pan[1],ci_hc_pan[2],t_hc_an,d_hc_an,seg_hc_an,ci_hc_an[1],ci_hc_an[2],t_pan_an,d_pan_an,seg_pan_an,ci_pan_an[1],ci_pan_an[2],tstat.df)
       THREE_GROUP <- rbind(THREE_GROUP,row)}
-  }
+}
 }
 
 ## Predictors of brain outcomes per group
