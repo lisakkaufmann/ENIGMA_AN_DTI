@@ -251,7 +251,7 @@ merged_ordered <- merged_ordered %>% arrange("SubjId")
 setwd(statsdir)
 # Run the voxel model
 skeletons <- c("all_FA_skeletonized.nii.gz", "all_MD_skeletonized.nii.gz", "all_AD_skeletonized.nii.gz", "all_RD_skeletonized.nii.gz")
-(for skeleton in skeletons){
+for(skeleton in skeletons){
 voxelstats <- lmNIfTI(image=skeleton,mask=mask,form=' ~ dx + age + age2',subjData=merged_ordered)
 setwd(results)
 #Save the outputs
