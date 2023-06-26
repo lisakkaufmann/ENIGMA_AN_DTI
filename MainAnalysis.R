@@ -112,17 +112,14 @@ if("ad" %in% brain){brain <- brain[!brain=="ad"]}
     write.csv(cont_sum,"cont_summary_3group.csv")
   }
 
+
 cat('Calculating brain summaries for 2 groups', tbssfile,'\n')
-
-brain_sum <- merged_ordered %>% dplyr::group_by(dx) %>% st(brain, group="dx3")
-
-write.csv(brain_sum,paste0(tbssfile,"_brain_summary_2group.csv"))
+brain_sum <- merged_ordered %>% dplyr::group_by(dx) %>% st(brain, group="dx",out='csv',file=paste0(tbssfile,"_brain_summary_2group.csv"))
 
 cat('Calculating brain summaries for 3 groups for ', tbssfile,'\n')
+brain_sum <- merged_ordered %>% dplyr::group_by(dx3) %>% st(brain, group="dx3",out='csv',file=paste0(tbssfile,"_brain_summary_3group.csv"))
 
-brain_sum <- merged_ordered %>% dplyr::group_by(dx3) %>% st(brain, group="dx3")
 
-write.csv(brain_sum,paste0(tbssfile,"_brain_summary_2group.csv"))
 
 
 setwd(enigmadir)
