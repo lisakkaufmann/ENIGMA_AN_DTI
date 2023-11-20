@@ -9,5 +9,5 @@ for fi in $files ; do
 dtifit --data=$fi/ses-001/dwi/${fi}_ses-001_dwi_preprocessed.nii.gz --mask=$fi/ses-001/dwi/${fi}_ses-001_dwi_averageb0mask.nii.gz --bvecs=$fi/ses-001/dwi/${fi}_ses-001_dwi.bvec --bvals=$fi/ses-001/dwi/${fi}_ses-001_dwi.bval --out=$fi/ses-001/dwi/${fi}_ses-001
 
 mv $fi/ses-001/dwi/${fi}_ses-001_L1.nii.gz $fi/ses-001/dwi/${fi}_ses-001_RD.nii.gz
-fslmaths $fi/ses-001/dwi/${fi}_ses-001_L3.nii.gz -add $sub/ses-001/dwi/${sub}_ses-001_L2.nii.gz -div 2 $sub/ses-001/dwi/${sub}_ses-001_AD.nii.gz
+fslmaths $fi/ses-001/dwi/${fi}_ses-001_L3.nii.gz -add $fi/ses-001/dwi/${fi}_ses-001_L2.nii.gz -div 2 $fi/ses-001/dwi/${fi}_ses-001_AD.nii.gz
 done

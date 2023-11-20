@@ -211,11 +211,11 @@ for(frame in list(AN,HC, AN_acute, AN_partial)){
   i <- i+1
   name <- framename[i]
   for(test in testvars){
-    for(i in 1:nrow(models)){  
+    for(j in 1:nrow(models)){  
       for(pred in preds){
         frame$test <- frame[[test]]
-        formula <- paste0(models[i,]$Formula,pred)
-        info <- paste0(models[i,]$Info," adj for ",pred)
+        formula <- paste0(models[j,]$Formula,pred)
+        info <- paste0(models[j,]$Info," adj for ",pred)
         if(length(unique(frame$site<2))){formula <- gsub("site+","",formula, fixed = T)}
         mod <-lm(formula = formula, data=frame)
         n <- data.frame(model.matrix(mod))
@@ -241,6 +241,8 @@ write.csv(STATS,paste0("correlations_ENIGMA_",filetype,".csv"))
 
 
 ##Now voxel wise - change the path to where your images are.
+##If the readnii function does not work you can substitute to readNifti
+
 path <- projectdir
 mask <- paste0(enigmadir,"/ENIGMA_DTI_FA_skeleton_mask.nii.gz")
 mask = readnii(mask)
@@ -252,7 +254,7 @@ setwd(statsdir)
 # Run the voxel model
 skeletons <- c("all_FA_skeletonized.nii.gz", "all_MD_skeletonized.nii.gz", "all_AD_skeletonized.nii.gz", "all_RD_skeletonized.nii.gz")
 for(skeleton in skeletons){
-voxelstats <- lmNIfTI(image=skeleton,mask=mask,form=' ~ dx + age + age2',subjData=merged_ordered)
-setwd(results)
-#Save the outputs
+param <- sub(".*_([^_]+)_.*", "\\1", skeleton)
+dir.create(paste0(results,"/TBSS",param), mode = '0777')
+voxelstats <- lmNIfTI(image=skeleton,mask=mask,form=' ~ dx + age + age2',subjData=merged_ordered, outDir=paste0(results,"/TBSS",param))
 }
